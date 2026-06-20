@@ -18,9 +18,9 @@ terraform {
 provider "aws" {
   region = "us-east-1"
 
-   default_tags {
+  default_tags {
     tags = {
-      ManagedBy   = "Terraform"
+      ManagedBy = "Terraform"
     }
   }
 }
