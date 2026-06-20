@@ -19,7 +19,11 @@ repos:
         files: \.tf$
         verbose: true
         args:
-          - "--type terraform"
-          - "--report-formats json"
-          - "--fail-on HIGH,CRITICAL"
-          - "--severity-exclude LOW,MEDIUM"
+        - "--type"
+        - "Terraform"
+        - "--report-formats"
+        - "json"
+        - "--fail-on"
+        - "HIGH,CRITICAL"
+        - "--exclude-severities"
+        - "LOW,MEDIUM"
