@@ -15,3 +15,23 @@ variable "vpc_name" {
   default     = "microservices-platform"
 }
 
+variable "availability_zones" {
+  type = list(string)
+  description = " AZs used in the project"
+  validation {
+    condition     = length(var.availability_zones) >= 2
+    error_message = "Provide at least 2 availability zones."
+  }
+
+  validation {
+    condition     = length(var.availability_zones) == length(distinct(var.availability_zones))
+    error_message = "Availability zones must be unique."
+  }
+
+  validation {
+    condition = alltrue([
+      for az in var.availability_zones : contains(local.available_azs, az)
+    ])
+    error_message = "One or more AZs are not valid for this region."
+  }
+}
