@@ -16,7 +16,7 @@ variable "vpc_name" {
 }
 
 variable "availability_zones" {
-  type = list(string)
+  type        = list(string)
   description = " AZs used in the project"
   validation {
     condition     = length(var.availability_zones) >= 2
