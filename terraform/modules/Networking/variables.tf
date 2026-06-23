@@ -15,23 +15,37 @@ variable "vpc_name" {
   default     = "microservices-platform"
 }
 
-variable "availability_zones" {
-  type        = list(string)
-  description = " AZs used in the project"
-  validation {
-    condition     = length(var.availability_zones) >= 2
-    error_message = "Provide at least 2 availability zones."
-  }
+variable "eks_subnets" {
+  description = "Map of EKS subnet configurations"
+  type = map(object({
+    cidr_block        = string
+    availability_zone = string
+    name              = string
+  }))
 
-  validation {
-    condition     = length(var.availability_zones) == length(distinct(var.availability_zones))
-    error_message = "Availability zones must be unique."
-  }
-
+  # Validate CIDR format
   validation {
     condition = alltrue([
-      for az in var.availability_zones : contains(local.available_azs, az)
+      for s in values(var.eks_subnets) : can(cidrhost(s.cidr_block, 0))
     ])
-    error_message = "One or more AZs are not valid for this region."
+    error_message = "All EKS subnet cidr_block values must be valid CIDR blocks (e.g. 10.0.1.0/24)."
+  }
+
+  # Validate AZs are unique across subnets
+  validation {
+    condition = length([
+      for s in values(var.eks_subnets) : s.availability_zone
+      ]) == length(distinct([
+        for s in values(var.eks_subnets) : s.availability_zone
+    ]))
+    error_message = "Availability zones must be unique across EKS subnets."
+  }
+
+  # Validate AZs exist in the current region
+  validation {
+    condition = alltrue([
+      for s in values(var.eks_subnets) : contains(local.available_azs, s.availability_zone)
+    ])
+    error_message = "One or more EKS subnet availability zones are not valid for this region."
   }
 }
